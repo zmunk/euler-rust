@@ -32,6 +32,19 @@ pub fn get_primes_less_than(n: i64) -> Vec<i64> {
     primes
 }
 
+#[allow(dead_code)]
 pub fn get_primes_set(n: i64) -> HashSet<i64> {
     HashSet::from_iter(get_primes_less_than(n).iter().cloned())
+}
+
+#[allow(dead_code)]
+pub fn is_num_palindrome(n: i32) -> bool {
+    let s: &str = &n.to_string();
+    let r: &str = &s.chars().rev().collect::<String>();
+    s == r
+}
+
+#[allow(dead_code)]
+pub fn is_str_palindrome(s: &str) -> bool {
+    s == &s.chars().rev().collect::<String>()
 }
