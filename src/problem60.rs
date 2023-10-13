@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use std::collections::{HashSet, HashMap};
 use crate::utils::get_primes_less_than;
 
 pub fn main() -> i32 {
@@ -21,56 +20,37 @@ pub fn main() -> i32 {
         check_prime(concat1) && check_prime(concat2)
     };
 
-    let mut compatible_pairs = vec![];
-    let mut compatible_triplets  = vec![];
-    let mut compatible_quads  = vec![];
+    let mut compatible: HashMap<i64, Vec<Vec<i64>>> = HashMap::new();
 
-    let mut i = 0;
-    loop {
+    for i in 0.. {
         let p1 = primes[i];
         if p1 * p1 > primes_lim {
             panic!("not enough primes")
         }
+
+        let mut list_compat: Vec<Vec<i64>> = vec![];
+        let mut compatible_values = HashSet::new();
+
         for &p2 in &primes[..i] {
-            if check_compatible(p1, p2) {
-                compatible_pairs.push((p1, p2));
+            if !check_compatible(p1, p2) {
+                continue;
             }
-        }
-
-        for &(a, b) in compatible_pairs.iter() {
-            if check_compatible(a, p1) && check_compatible(b, p1) {
-                compatible_triplets.push((a, b, p1));
+            compatible_values.insert(p2);
+            list_compat.push(vec![p2]);
+            if !compatible.contains_key(&p2) {
+                continue;
             }
-        }
-
-        for triplet in &compatible_triplets {
-            let mut compatible = true;
-            let (a, b, c) = triplet.clone();
-            for p in [a, b, c] {
-                if !check_compatible(p, p1) {
-                    compatible = false;
-                    break;
+            for compat in compatible.get(&p2).unwrap() {
+                if HashSet::from_iter(compat.iter().cloned()).is_subset(&compatible_values) {
+                    if compat.len() == 3 {
+                        return (compat.iter().sum::<i64>() + p1 + p2) as i32
+                    }
+                    list_compat.push(compat.iter().chain([&p2]).cloned().collect());
                 }
             }
-            if compatible {
-                compatible_quads.push((a, b, c, p1));
-            }
         }
-
-        for quad in &compatible_quads {
-            let mut compatible = true;
-            let (a, b, c, d) = quad.clone();
-            for p in [a, b, c, d] {
-                if !check_compatible(p, p1) {
-                    compatible = false;
-                    break;
-                }
-            }
-            if compatible {
-                return [a, b, c, d, p1].iter().sum::<i64>() as i32
-            }
-        }
-        i += 1;
+        compatible.insert(p1, list_compat);
     }
+    0
 }
 
